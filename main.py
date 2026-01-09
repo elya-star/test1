@@ -20,9 +20,16 @@ def main(page: ft.Page):
             text_hello.value = f"{time_str} - Hello, {name}"
             name_input.value = ''
 
-            greeting_history.append(name)
-            print(greeting_history)
-            greeting_text.value = "История приветсвий: \n" + "\n".join(greeting_history)
+            greeting_history.append({
+                "name": name,
+                "time": now
+
+            })
+            if len(greeting_history) > 5:
+                greeting_history.pop(0)
+                greeting_text.value = "История приветсвий: \n" + "\n".join(
+                    [f"{item['time'].strftime('%H:%M:%S')} — {item['name']}" for item in greeting_history]
+                )
 
 
         else:
@@ -36,14 +43,30 @@ def main(page: ft.Page):
         greeting_history.clear()
         greeting_text.value = 'История приветсвия'
 
+    def morning_filter(_):
+        filtered = [
+            f"{item['time'].strftime('%H:%M:%S')} — {item['name']}" for item in greeting_history if item["time"].hour < 12 
+        ]
+        greeting_text.value = "Утренние приветсвия: \n" + "\n".join(filtered)
+        page.update()
+
+    def evening_filter(_):
+        filtered = [
+            f"{item['time'].strftime('%H:%M:%S')} — {item['name']}" for item in greeting_history if item["time"].hour >= 12 
+        ]
+        greeting_text.value = "Вечерние приветсвия: \n" + "\n".join(filtered)
+        page.update()
+
     clear_button = ft.IconButton(icon=ft.Icons.DELETE, on_click=clear_history)
     name_input = ft.TextField(label='Введите имя', on_submit=on_button_click)
+    morning_button = ft.ElevatedButton("Утренние приветсвия", on_click=morning_filter)
+    evening_button = ft.ElevatedButton("Вечерние приветсвия", on_click=evening_filter)
 
     main_object = ft.Row([name_input, eleveted_button, clear_button])
-
+    other_objects = ft.Row([morning_button, evening_button])
     text_row = ft.Row([text_hello], alignment=ft.MainAxisAlignment.CENTER)
 
-    page.add(text_row, main_object, greeting_text)
+    page.add(text_row, main_object, other_objects, greeting_text)
 
 ft.run(main, view=ft.AppView.WEB_BROWSER, port=8550)
     
