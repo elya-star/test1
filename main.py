@@ -23,8 +23,8 @@ def main(page: ft.Page):
             greeting_history.append({
                 "name": name,
                 "time": now
-
             })
+            #фильтрация по последним 5 именам
             if len(greeting_history) > 5:
                 greeting_history.pop(0)
                 greeting_text.value = "История приветсвий: \n" + "\n".join(
